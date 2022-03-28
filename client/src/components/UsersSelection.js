@@ -14,7 +14,7 @@ const UsersSelection = (props) => {
                     onChange={props.handleChange}
                 >   
                     {props.users.map((user,index)=>{
-                        return <MenuItem key={index} value={user.id} name={user.username} >{user.username}</MenuItem>
+                        return <MenuItem key={index} value={user._id} name={user.username} >{user.username}</MenuItem>
                     })}
                 </Select>
             </FormControl>

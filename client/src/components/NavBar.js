@@ -24,7 +24,7 @@ const NavBar = (props) => {
     };
     const logout=()=>{
       localStorage.clear();
-      props.socket.disconnect()
+   
       setProfile(null);
       navigate('/login');
     }

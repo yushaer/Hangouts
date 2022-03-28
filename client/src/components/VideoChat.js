@@ -1,32 +1,52 @@
-import react from 'react';
+import react, { useContext } from 'react';
 import Typography from '@mui/material/Typography';
-import { Container,Grid,Paper,Button,Dialog,DialogTitle} from '@mui/material';
+import { Container,Grid,Paper,Button,Dialog,DialogTitle, DialogContent} from '@mui/material';
 import NavBar from './NavBar';
 import UserVideo from './Video';
 import * as api from '../api';
+import  ringtone from './discord_ringtone.mp3';
 import {useNavigate } from 'react-router-dom';
 import Controls from './Controls';
+import { CircularProgress } from '@mui/material';
 import { useState, useEffect ,useRef} from 'react';
 import Peer from "simple-peer"
 import io from "socket.io-client"
 
+import { SocketContext } from '../Context';
 const VideoChat = () => {
 
 	const [socket,setSocket] = useState(null);
 	const navigate = useNavigate();
-  const myVideo = useRef();
-  const [ stream, setStream ] = useState();
-  const [caller,setCaller] = useState({});
+	const audio = new Audio(ringtone);
+	const {
+		myVideo,
+        caller,
+        userVideo,
+        callAccepted,
+        callEnded,
+        receivingCall,
+        userslist,
+		isCalling,
+        callUser,
+        leaveCall,
+        answerCall
+
+
+	  }=useContext(SocketContext);
+	  console.log( callAccepted)
+//   const myVideo = useRef();
+//   const [ stream, setStream ] = useState();
+//   const [caller,setCaller] = useState({});
   const[toCall,setToCall]=useState(null);
-  const [loggedIn,setLoggedIn] = useState(false);
+ const [loggedIn,setLoggedIn] = useState(false);
   
-  const[receivingCall,setRecievingCall]=useState(false);
-  const[callEnded,setCallEnded]=useState(false);
-  const [ callAccepted, setCallAccepted ] = useState(false)
-  const [userslist , setUserslist] = useState([]);
+//   const[receivingCall,setRecievingCall]=useState(false);
+//   const[callEnded,setCallEnded]=useState(false);
+//   const [ callAccepted, setCallAccepted ] = useState(false)
+//  const [userslist , setUserslist] = useState([]);
   const [profile, setProfile] =useState(JSON.parse(localStorage.getItem('profile')));
-  const userVideo = useRef();
-	const connectionRef= useRef();
+//   const userVideo = useRef();
+// 	const connectionRef= useRef();
 	const handleChange=(e,child)=>{
 		console.log(child.props.children);
 		setToCall({id:e.target.value,username:child.props.children});
@@ -36,144 +56,142 @@ const VideoChat = () => {
 		if (!JSON.parse(localStorage.getItem('profile'))?.token){
 			navigate('/login');
 		}
-		else{
-			const newSocket=io.connect('http://localhost:5000',{
-				query:{
-				   token:JSON.parse(localStorage.getItem('profile')).token,
-				   username:JSON.parse(localStorage.getItem('profile')).user.username
-				}
-			  });
-			setSocket(newSocket);
+		
+
+		setLoggedIn(true)
+		
+		
 		 
-		
-			   navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
-				 
-				setStream(stream)
-					   myVideo.current.srcObject = stream
-			   })
-		   setProfile(JSON.parse(localStorage.getItem('profile')));
-			setLoggedIn(true);
-		
-			
-		   
-		   if(socket!=null){
+	  }, [navigate]);
+	  useEffect(()=>{
+		(receivingCall && !callAccepted)  ?audio.play() : audio.pause();
+	  },[receivingCall,callAccepted])
 
-			socket.on("callUser", (data) => {
-				setCaller({id:data.from,name:data.name,signal:data.signal});
-						   
-				   setRecievingCall(true);	
-			   
-				  })
-			  
-				  socket.on("call-ended", (data) => {
-					  setCallEnded(true);
-					  setRecievingCall(false);
-								
-					  setCallAccepted(false);
-					  window.location.reload();
-					
-					   })
-					  
 
-					   socket.on("getonlineUsers", (data) => {
-							console.log(data);
-							setUserslist(data);
-						  
-						  })
-		}
-		
+
+
 				
-					  
-						
-		}
-		
-	 
-		
-	  }, []);
-  const callUser = () => {
-	  if(toCall){
-		const peer = new Peer({
-			initiator: true,
-			trickle: false,
-			stream: stream
-		})
-		peer.on("signal", (data) => {
-			socket.emit("callUser", {
-			user: toCall.id,
-				signalData: data,
-				from: profile.user.id,
-				name: profile.user.username
-			})
-      peer.on("stream", (stream) => {
+//   const callUser = () => {
+// 	  if(toCall){
+// 		const peer = new Peer({
+// 			initiator: true,
+// 			trickle: false,
+// 			stream: stream
+// 		})
+// 		peer.on("signal", (data) => {
+// 			socket.emit("callUser", {
+// 			user: toCall.id,
+// 				signalData: data,
+// 				from: profile.user.id,
+// 				name: profile.user.username
+// 			})
+//       peer.on("stream", (stream) => {
 			
-				userVideo.current.srcObject = stream
-				console.log("hi")
-		})
-		socket.on("callaccepted", (signal) => {
-			setCallAccepted(true)
-			peer.signal(signal)
-		})
+// 				userVideo.current.srcObject = stream
+			 
+// 		})
+// 		socket.on("callaccepted", (signal) => {
+// 			setCallAccepted(true)
+// 			peer.signal(signal)
+// 		})
 
-		connectionRef.current = peer
-		})
+// 		connectionRef.current = peer
+// 		})
 
-	}
+// 	}
 	
-	}
-  const answerCall =() =>  {
-		setCallAccepted(true)
-		const peer = new Peer({
-			initiator: false,
-			trickle: false,
-			stream: stream
-		})
-		peer.on("signal", (data) => {
-			socket.emit("accept-call", { signal: data, to: caller.id })
-		})
-		peer.on("stream", (streams) => {
-			userVideo.current.srcObject = streams
-		})
+// 	}
+//   const answerCall =() =>  {
+// 		setCallAccepted(true)
+// 		const peer = new Peer({
+// 			initiator: false,
+// 			trickle: false,
+// 			stream: stream
+// 		})
+// 		peer.on("signal", (data) => {
+// 			socket.emit("accept-call", { signal: data, to: caller.id })
+// 		})
+// 		peer.on("stream", (streams) => {
+// 			userVideo.current.srcObject = streams
+// 		})
 
-		peer.signal(caller.signal)
-		connectionRef.current = peer
-	}
+// 		peer.signal(caller.signal)
+// 		connectionRef.current = peer
+// 	}
   
 
-	const leaveCall =  async () => {
-		const peer = new Peer({
-			initiator: true,
-			trickle: false
+// 	const leaveCall =	async () => {
+// 		const peer = new Peer({
+// 			initiator: true,
+// 			trickle: false
 		 
-		})
+// 		})
+// 		setCallEnded(true);
+// 		setCallAccepted(false);
+// 		setRecievingCall(false);
 
+// 		await socket.emit("endcall", {
+// 		 	user: caller.id,
+// 				socketData:"sd",
+// 				from: profile.user.id,
+// 				name: profile.user.username
+
+// 			}, () => {
+// 				console.log("call ended");
+				
+			 
+// 				connectionRef.current.destroy();
+			 
+// 			})
+// 			window.location.reload();
+			
+			
+			 
+			
 		
-			await socket.emit("endcall", {
-			user: caller.id,
-				socketData:"sd",
-				from: profile.user.id,
-				name: profile.user.username
-			})
-			setCallEnded(true);
-		window.location.reload();
+		
+		
+		
+		
+		 
+			
 
 
 	
 		
 		
-	}
-
+// 	}
+ 
 	if(loggedIn){
-		console.log(userslist)
+		//console.log(userslist)
+	 
 		return (
 
 			<><NavBar socket={socket} /><br></br><br></br><Container>
-				{receivingCall && !callAccepted  ? (
+				{isCalling ? (
+				<Dialog  
+				BackdropProps={{ style: { backgroundColor: "transparent" } }}
+				open={isCalling } className="dialog"  
+  				PaperProps={{
+    			style: {
+					 
+					backgroundColor: 'rgba(255, 255, 255,0.8)',
+				
+					},
+ 				 }}>
+					
+					<DialogContent className='calling-dialog'> 
+					<DialogTitle>Calling {toCall.username}</DialogTitle>
+						<CircularProgress color="success" /></DialogContent>
+				
+					</Dialog>):null}
+				{receivingCall && !callAccepted  ?(	 
 					<Dialog  open={receivingCall && !callAccepted}>
 					<DialogTitle>{caller.name} is calling</DialogTitle>
-					<Button onClick={answerCall}>Accept</Button>
+					<Button onClick={()=>answerCall(audio)}  >Accept</Button>
 					</Dialog>
-							
-					) : null}
+				
+					)  :null }
 			<br></br><Typography variant="h1" align='center'>Video Chat</Typography>
 			
 			<Grid container spacing={2} className="gridContainer">
@@ -193,7 +211,7 @@ const VideoChat = () => {
 			<br></br>
 			<br></br>
 			<br></br>
-			<Controls callAccepted={callAccepted} callEnded={callEnded} callUser={callUser} userslist={userslist} endCall={leaveCall}  handleSelection={handleChange}  />
+			<Controls callAccepted={callAccepted} callEnded={callEnded} callUser={()=>callUser(toCall)} userslist={userslist} endCall={leaveCall}  handleSelection={handleChange}  />
 		</Container> </>
 		);
 			}
