@@ -1,0 +1,63 @@
+body {
+  background: rgb(131,58,180);
+  background: linear-gradient(90deg, rgba(131,58,180,1) 0%, rgba(253,29,29,1) 50%, rgba(252,176,69,1) 100%);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+}
+.navbar {
+    border-radius: 15px;
+    background-color: #0093E9;
+    background-image: linear-gradient(160deg, #0093E9 0%, #80D0C7 100%);
+    
+  
+    
+}
+.video{
+ width:100%;
+}
+
+.video-player{
+ 
+   padding: 1rem;
+    margin-top: 5rem;
+  
+}
+.form-header{
+  font-weight: bold;
+}
+.submit-button{
+  background-color: #0093E9;
+background-image: linear-gradient(160deg, #0093E9 0%, #80D0C7 100%);
+
+}
+.controls{
+  display: flex;
+  justify-content:  center;
+  align-items: center;
+  margin-top: 1rem;
+  width: fit-content;
+  margin: auto;
+  padding: 1rem; 
+  position: -webkit-sticky;
+  position: sticky;
+  bottom: 20px;
+}
+.auth-form-paper{
+
+    flex-direction: column;
+    align-items: center;
+    margin-top: 5rem;
+    padding:1rem;
+
+}
+.auth-form{
+  padding: 1rem;
+}
+@media screen and (max-width: 480px) {
+  .gridContainer {
+    flex-direction: column;
+  }
+ 
+}
+  
