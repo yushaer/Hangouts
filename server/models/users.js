@@ -13,6 +13,7 @@ const userSigma = mongoose.Schema({
         type:String,
         required:true
     }
+    
       
 });
 const users=mongoose.model('Users',userSigma);

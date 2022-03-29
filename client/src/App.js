@@ -4,6 +4,7 @@ import Typography from '@mui/material/Typography';
 import { Container } from '@mui/material';
 import VideoChat from './components/VideoChat';
 import Form from './components/Form';
+import { ContextProvider } from './Context';
 import {
   BrowserRouter,
   Routes,
@@ -19,7 +20,7 @@ function App() {
      
       <Route path="/discover" element={<MovieList name="Discover" type="featured" />} />
       <Route path="/recommended" element={<MovieList type="recomended" name="Recommended Movies"  />} /> */}
-      <Route path="/" element={<VideoChat />} />
+      <Route path="/" element={<ContextProvider><VideoChat /></ContextProvider>} />
       <Route path="/login" element={<Form title="Login" type="login" />} />
       <Route path="/register" element={<Form title="Register" type="register" />} />
       {/* 

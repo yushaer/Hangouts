@@ -15,19 +15,16 @@ const ContextProvider = ({ children }) => {
   const [userslist , setUserslist] = useState([]);
   const[callEnded,setCallEnded]=useState(false);
  const[isCalling,setIsCalling]=useState(false);
-  
+  const[audioMuted,setAudioMuted]=useState(false);
   const [ callAccepted, setCallAccepted ] = useState(false)
   const myVideo = useRef();
+const toCall=useState(null);
   const userVideo = useRef();
   
 	const connectionRef= useRef();
     useEffect(() => {
         
-        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
-				 
-            setStream(stream)
-                   myVideo.current.srcObject = stream
-           })
+      
 			
         if (JSON.parse(localStorage.getItem('profile'))?.token){
            
@@ -64,6 +61,7 @@ const ContextProvider = ({ children }) => {
 			console.log(onlineUsers);  
 		})
 
+
 		 
 			  
 			  
@@ -91,10 +89,12 @@ const ContextProvider = ({ children }) => {
 					  setRecievingCall(false);
 								
 					  setCallAccepted(false); 
-					  setCallEnded(true);
-                      setCaller(null);
-					  window.location.reload();
-					  
+				 
+                     
+					  userVideo?.current?.srcObject.getTracks().forEach(track => track.stop());
+                
+                      connectionRef.current.destroy();
+                
 								
 		
 					   })
@@ -110,44 +110,67 @@ const ContextProvider = ({ children }) => {
 	
                     }
 		
-		
+                    
 		 
 	  }, []);
+      
       const callUser = (toCall) => {
         if(toCall){
-             setIsCalling(true);
-          const peer = new Peer({
-              initiator: true,
-              trickle: false,
-              stream: stream
-          })
-          peer.on("signal", (data) => {
-              socket.emit("callUser", {
-              user: toCall.id,
-                  signalData: data,
-                  from: profile.user.id,
-                  name: profile.user.username
-              })
-        peer.on("stream", (stream) => {
-              
-                  userVideo.current.srcObject = stream
+            
+            navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
+				 
+                setStream(stream)
+                if(myVideo.current){
+                    myVideo.current.srcObject = stream
                
-          })
-          socket.on("callaccepted", (signal) => {
-            setIsCalling( false);
-              setCallAccepted(true)
-              peer.signal(signal)
-          })
-  
-          connectionRef.current = peer
-          })
-  
-      }
+               
+                }
+                
+                setIsCalling(true);
+                const peer = new Peer({
+                    initiator: true,
+                    trickle: false,
+                    stream: stream
+                })
+                peer.on("signal", (data) => {
+                    socket.emit("callUser", {
+                    user: toCall.id,
+                        signalData: data,
+                        from: profile.user.id,
+                        name: profile.user.username
+                    })
+              peer.on("stream", (stream) => {
+                    
+                        userVideo.current.srcObject = stream
+                     
+                })
+                socket.on("callaccepted", (signal) => {
+                  setIsCalling( false);
+                    setCallAccepted(true)
+                    peer.signal(signal)
+                })
+        
+                connectionRef.current = peer
+                })
+        
+               }).catch(()=>{
+                     alert("Please allow access to your camera and mic")
+                })
+          
+         }
       
       }
     const answerCall =(audio) =>  {
         audio.pause();
-          setCallAccepted(true)
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
+				 
+            setStream(stream)
+            if(myVideo.current){
+                myVideo.current.srcObject = stream
+           
+           
+            }
+            setCallAccepted(true)
           const peer = new Peer({
               initiator: false,
               trickle: false,
@@ -162,18 +185,18 @@ const ContextProvider = ({ children }) => {
   
           peer.signal(caller.signal)
           connectionRef.current = peer
+        })
+          
       }
     
   
       const leaveCall =	async () => {
-          const peer = new Peer({
-              initiator: true,
-              trickle: false
-           
-          })
-          setCallEnded(true);
-      ;
-  
+         
+    
+        userVideo?.current?.srcObject.getTracks().forEach(track => track.stop());
+        setCallAccepted(false);
+        setRecievingCall(false);
+     
           await socket.emit("endcall", {
                user: caller.id,
                   socketData:"sd",
@@ -182,15 +205,18 @@ const ContextProvider = ({ children }) => {
   
               }, () => {
                   console.log("call ended");
-                  setCallAccepted(false);
-                  setRecievingCall(false);
+                 
                   setCaller(null);
-               
+                
+
+              
+                
+            
                   connectionRef.current.destroy();
                 
                
               })
-              window.location.reload();
+              
               
               
                
@@ -208,7 +234,45 @@ const ContextProvider = ({ children }) => {
           
           
       }
-  
+      function toggleMuteAudio(){
+        if(stream){
+          setAudioMuted(!audioMuted)
+          stream.getAudioTracks()[0].enabled = audioMuted
+        }
+      }
+      function shareScreen(){
+        navigator.mediaDevices.getDisplayMedia({ video: {  
+
+            width: 600 ,
+            height:600}, audio: true })
+        .then(screenStream=>{
+            navigator.mediaDevices.getUserMedia({ audio: {'echoCancellation': true}, video: false }).then(VOICE_STREAM=>{
+
+            
+                const AUDIO_CONTEXT = new AudioContext();
+            const AUDIO_MERGER = AUDIO_CONTEXT.createMediaStreamDestination(); // audio merger
+
+       
+            const MEDIA_AUDIO = AUDIO_CONTEXT.createMediaStreamSource(screenStream); // passing source of on-screen audio
+                        
+            const MIC_AUDIO = AUDIO_CONTEXT.createMediaStreamSource(VOICE_STREAM);
+
+            MEDIA_AUDIO.connect(AUDIO_MERGER); // passing media-audio to merger
+            MIC_AUDIO.connect(AUDIO_MERGER); // passing  microphone-audio to merger
+            const TRACKS = [...screenStream.getVideoTracks(), ...AUDIO_MERGER.stream.getTracks()]
+            const newStream= new MediaStream(TRACKS); 
+            connectionRef.current.replaceTrack(stream.getVideoTracks()[0],newStream.getVideoTracks()[0],stream)
+            connectionRef.current.replaceTrack(stream.getAudioTracks()[0],newStream.getAudioTracks()[0],stream)
+           myVideo.current.srcObject= newStream;
+           newStream.getTracks()[0].onended = () =>{
+                connectionRef.current.replaceTrack(newStream.getVideoTracks()[0],stream.getVideoTracks()[0],stream)
+                      myVideo.current.srcObject=stream
+             } // retrieving microphone-media
+            
+          
+        })
+      })
+        }
  
     return (
       <SocketContext.Provider value={{
@@ -220,9 +284,13 @@ const ContextProvider = ({ children }) => {
          receivingCall,
             userslist,
             isCalling,
+            audioMuted,
         callUser,
         leaveCall,
-        answerCall,
+        answerCall, 
+        shareScreen,
+        toggleMuteAudio
+
       }}
       >
         {children}

@@ -29,7 +29,8 @@ const VideoChat = () => {
 		isCalling,
         callUser,
         leaveCall,
-        answerCall
+        answerCall,
+
 
 
 	  }=useContext(SocketContext);
@@ -196,9 +197,8 @@ const VideoChat = () => {
 			
 			<Grid container spacing={2} className="gridContainer">
 			<Grid item xs={12} md={6}>
-			<UserVideo video={myVideo} ismuted={true} name={profile.user.username}>
-		
-			</UserVideo>
+			<UserVideo video={myVideo} ismuted={true} name={profile.user.username}/>
+			
 
 			
 			

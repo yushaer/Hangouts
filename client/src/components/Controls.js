@@ -9,7 +9,7 @@ return (
     <Paper elevation={8} align-items="center" className="controls"  >
     
         {props.callAccepted && !props.callEnded?(<Button color="primary" aria-label="call" onClick={props.endCall}>End Call</Button>):
-        ( <><UsersSelection users={props.userslist}  handleChange={props.handleSelection}  /><IconButton color="primary" aria-label="call" onClick={props.callUser}>
+        ( <><UsersSelection users={props.userslist}  handleChange={props.handleSelection}  /><IconButton color="primary" aria-label="call" className="icon-btn" onClick={props.callUser}>
                 <PhoneIcon fontSize="large" />
             </IconButton></>)
     
