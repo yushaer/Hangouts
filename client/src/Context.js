@@ -14,10 +14,12 @@ const ContextProvider = ({ children }) => {
   const[receivingCall,setRecievingCall]=useState(false);
   const [userslist , setUserslist] = useState([]);
   const[callEnded,setCallEnded]=useState(false);
+  const[calledUser,setCalledUser]=useState(null);
  const[isCalling,setIsCalling]=useState(false);
   const[audioMuted,setAudioMuted]=useState(false);
   const [ callAccepted, setCallAccepted ] = useState(false)
   const myVideo = useRef();
+ 
 const toCall=useState(null);
   const userVideo = useRef();
   
@@ -29,6 +31,7 @@ const toCall=useState(null);
         if (JSON.parse(localStorage.getItem('profile'))?.token){
            
         setProfile(JSON.parse(localStorage.getItem('profile')));
+        
         const newSocket = io.connect('http://localhost:5000',{
             query:{
                token:JSON.parse(localStorage.getItem('profile')).token,
@@ -84,16 +87,19 @@ const toCall=useState(null);
 			   
 				  })
 			  
-                  newSocket.on("call-ended", (data) => {
+              newSocket.on("call-ended", (data) => {
 				
-					  setRecievingCall(false);
-								
-					  setCallAccepted(false); 
+                setCallAccepted(false);
 				 
+                setRecievingCall(false);
                      
 					  userVideo?.current?.srcObject.getTracks().forEach(track => track.stop());
                 
-                      connectionRef.current.destroy();
+             
+                      setCalledUser(null)
+                      setIsCalling(false);
+                 
+           
                 
 								
 		
@@ -130,7 +136,8 @@ const toCall=useState(null);
                 const peer = new Peer({
                     initiator: true,
                     trickle: false,
-                    stream: stream
+                    stream: stream,
+                    userId:toCall.id
                 })
                 peer.on("signal", (data) => {
                     socket.emit("callUser", {
@@ -145,6 +152,7 @@ const toCall=useState(null);
                      
                 })
                 socket.on("callaccepted", (signal) => {
+                  setCalledUser(toCall.id);
                   setIsCalling( false);
                     setCallAccepted(true)
                     peer.signal(signal)
@@ -162,6 +170,7 @@ const toCall=useState(null);
       }
     const answerCall =(audio) =>  {
         audio.pause();
+        setCalledUser(caller.id);
         navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
 				 
             setStream(stream)
@@ -174,6 +183,7 @@ const toCall=useState(null);
           const peer = new Peer({
               initiator: false,
               trickle: false,
+              userId:caller.id,
               stream: stream
           })
           peer.on("signal", (data) => {
@@ -190,33 +200,26 @@ const toCall=useState(null);
       }
     
   
-      const leaveCall =	async () => {
-         
-    
+      const leaveCall =	() => {
+  console.log(connectionRef.current.userId);
+          
+     setCallAccepted(false);
         userVideo?.current?.srcObject.getTracks().forEach(track => track.stop());
-        setCallAccepted(false);
-        setRecievingCall(false);
+     userVideo.current.srcObject=null
      
-          await socket.emit("endcall", {
-               user: caller.id,
+         socket.emit("endcall", {
+               user:  calledUser,
                   socketData:"sd",
                   from: profile.user.id,
                   name: profile.user.username
   
-              }, () => {
-                  console.log("call ended");
-                 
-                  setCaller(null);
-                
-
-              
-                
-            
-                  connectionRef.current.destroy();
-                
-               
               })
-              
+       
+              setCalledUser(null);
+              setCaller(null);
+              setIsCalling(false);
+              setRecievingCall(false);
+  
               
               
                
@@ -241,10 +244,7 @@ const toCall=useState(null);
         }
       }
       function shareScreen(){
-        navigator.mediaDevices.getDisplayMedia({ video: {  
-
-            width: 600 ,
-            height:600}, audio: true })
+        navigator.mediaDevices.getDisplayMedia({ video: true, audio: true })
         .then(screenStream=>{
             navigator.mediaDevices.getUserMedia({ audio: {'echoCancellation': true}, video: false }).then(VOICE_STREAM=>{
 

@@ -6,14 +6,14 @@ import { SocketContext } from '../Context';
 import VolumeMuteIcon from '@mui/icons-material/VolumeMute';
 import VolumeOffIcon from '@mui/icons-material/VolumeOff';
 import { useState, useEffect ,useRef,useContext} from 'react';
-
+import CallEndIcon from '@mui/icons-material/CallEnd';
 const UserVideo = (props) => {
-const { audioMuted,shareScreen,toggleMuteAudio} = useContext(SocketContext);
+const { audioMuted,shareScreen,toggleMuteAudio,leaveCall} = useContext(SocketContext);
 
 
     return (
 
-        <Box><Paper 
+        <Box style={props.style}><Paper 
         elevation={8}
         className="video-player"
       
@@ -31,6 +31,7 @@ const { audioMuted,shareScreen,toggleMuteAudio} = useContext(SocketContext);
          <IconButton color="primary" className="icon-btn" onClick={ shareScreen}><ScreenShareIcon fontSize="large"  /></IconButton>
          
          <IconButton color={!audioMuted?"primary":"error"} className="icon-btn" onClick={ toggleMuteAudio}>{!audioMuted?(<VolumeMuteIcon fontSize="large"  />):(<VolumeOffIcon fontSize="large"  />  )}</IconButton>
+         <IconButton color="error" className="icon-btn" onClick={ leaveCall}><CallEndIcon fontSize="large"  /> </IconButton>
          </Stack>
          )
          

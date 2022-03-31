@@ -1,6 +1,6 @@
 import react, { useContext } from 'react';
 import Typography from '@mui/material/Typography';
-import { Container,Grid,Paper,Button,Dialog,DialogTitle, DialogContent} from '@mui/material';
+import {Toolbar, Container,Grid,Paper,Button,Dialog,DialogTitle,Box, DialogContent} from '@mui/material';
 import NavBar from './NavBar';
 import UserVideo from './Video';
 import * as api from '../api';
@@ -13,8 +13,9 @@ import Peer from "simple-peer"
 import io from "socket.io-client"
 
 import { SocketContext } from '../Context';
-const VideoChat = () => {
 
+const VideoChat = () => {
+	const drawerWidth = 240;
 	const [socket,setSocket] = useState(null);
 	const navigate = useNavigate();
 	const audio = new Audio(ringtone);
@@ -48,6 +49,10 @@ const VideoChat = () => {
   const [profile, setProfile] =useState(JSON.parse(localStorage.getItem('profile')));
 //   const userVideo = useRef();
 // 	const connectionRef= useRef();
+const handleCall=(user)=>{
+	setToCall(user);
+	callUser(user);
+}
 	const handleChange=(e,child)=>{
 		console.log(child.props.children);
 		setToCall({id:e.target.value,username:child.props.children});
@@ -168,7 +173,14 @@ const VideoChat = () => {
 	 
 		return (
 
-			<><NavBar socket={socket} /><br></br><br></br><Container>
+			<><NavBar drawerWidth ={drawerWidth}   socket={socket} callUser={handleCall}/>
+			<Box component="main" sx={{
+			  flexGrow: 1,
+			  p: 3,
+			  width: { sm: `calc(100% - ${drawerWidth}px)` },
+			  ml: { sm: `${drawerWidth}px` }
+			}}>
+				    <Toolbar />
 				{isCalling ? (
 				<Dialog  
 				BackdropProps={{ style: { backgroundColor: "transparent" } }}
@@ -197,7 +209,8 @@ const VideoChat = () => {
 			
 			<Grid container spacing={2} className="gridContainer">
 			<Grid item xs={12} md={6}>
-			<UserVideo video={myVideo} ismuted={true} name={profile.user.username}/>
+			<UserVideo video={myVideo} style={(callAccepted && !callEnded)?{display:'block'}:{display:'none'}} ismuted={true} name={profile.user.username}/>
+			
 			
 
 			
@@ -211,8 +224,8 @@ const VideoChat = () => {
 			<br></br>
 			<br></br>
 			<br></br>
-			<Controls callAccepted={callAccepted} callEnded={callEnded} callUser={()=>callUser(toCall)} userslist={userslist} endCall={leaveCall}  handleSelection={handleChange}  />
-		</Container> </>
+			 
+		</Box> </>
 		);
 			}
 			else{
