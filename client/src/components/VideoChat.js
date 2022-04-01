@@ -31,6 +31,7 @@ const VideoChat = () => {
         callUser,
         leaveCall,
         answerCall,
+		declineCall
 
 
 
@@ -202,6 +203,7 @@ const handleCall=(user)=>{
 					<Dialog  open={receivingCall && !callAccepted}>
 					<DialogTitle>{caller.name} is calling</DialogTitle>
 					<Button onClick={()=>answerCall(audio)}  >Accept</Button>
+					<Button onClick={()=>declineCall(audio)}>Decline</Button>
 					</Dialog>
 				
 					)  :null }

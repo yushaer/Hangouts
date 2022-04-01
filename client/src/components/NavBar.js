@@ -27,7 +27,7 @@ const NavBar = (props) => {
 
   const { window } = props;
   const [mobileOpen, setMobileOpen] = useState(false);
-const{callUser,  userslist,}=useContext(SocketContext);
+const{callUser,  userslist,socket}=useContext(SocketContext);
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
@@ -81,9 +81,10 @@ const{callUser,  userslist,}=useContext(SocketContext);
       localStorage.clear();
    
       setProfile(null);
-   
+      socket.disconnect();
+      
       navigate('/login');
-      window.location.reload();
+     
     }
     useEffect(() => {
    

@@ -94,6 +94,10 @@ socket.on('join', (data, replyFn) => {
         console.log("test")
         io.to(data.to).emit('callaccepted',data.signal);
     });
+    socket.on('decline-call',(data)=>{
+        console.log("test")
+        io.to(data.to).emit('call-declined',data.signal);
+    });
     socket.on('getusers', (data,replyFn)=>{
         console.log(`${socket.id}: received getrooms event with ${data}`);
         const rooms = Array.from(io.sockets.adapter.rooms).map( (room) => {

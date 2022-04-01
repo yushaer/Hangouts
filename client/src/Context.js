@@ -75,8 +75,23 @@ const toCall=useState(null);
 						onlineUsers.splice(i,1);
 					}
 				}
+     
+    
+            userVideo?.current?.srcObject.getTracks().forEach(track => track.stop());
+       
+          setCallAccepted(false);
+          
+          setRecievingCall(false);
+               
+          setIsCalling(false);
+          
+       
+                
+
+        
+        setUserslist(onlineUsers);
 				console.log(onlineUsers);
-				setUserslist(onlineUsers);
+				
 			})
 		
 			newSocket.on("callUser", (data)=> {
@@ -98,7 +113,10 @@ const toCall=useState(null);
              
                       setCalledUser(null)
                       setIsCalling(false);
-                 
+                      setCalledUser(null);
+                      setCaller(null);
+                      setIsCalling(false);
+                      setRecievingCall(false);
            
                 
 								
@@ -156,9 +174,18 @@ const toCall=useState(null);
                   setIsCalling( false);
                     setCallAccepted(true)
                     peer.signal(signal)
+                    connectionRef.current = peer
+                })
+           
+                socket.on("call-declined", (signal) => {
+                  setCalledUser(null);
+                  setIsCalling( false);
+                    setCallAccepted(false)
+
+                  
                 })
         
-                connectionRef.current = peer
+                
                 })
         
                }).catch(()=>{
@@ -198,28 +225,42 @@ const toCall=useState(null);
         })
           
       }
-    
+      const declineCall =(audio) =>  {
+        audio.pause();
+       
+        socket.emit("decline-call", { signal: "", to: caller.id });
+       setCalledUser(null);
+       setCaller(null);	
+        setIsCalling(false);
+        setRecievingCall(false);	
+
+       
+          
+      }
+     const disconectCall = () => {
+      setCallAccepted(false);
+      userVideo?.current?.srcObject.getTracks().forEach(track => track.stop());
+   userVideo.current.srcObject=null
+   
+       socket.emit("endcall", {
+             user:  calledUser,
+                socketData:"sd",
+                from: profile.user.id,
+                name: profile.user.username
+
+            })
+     
+            setCalledUser(null);
+            setCaller(null);
+            setIsCalling(false);
+            setRecievingCall(false);
+          }
+
   
       const leaveCall =	() => {
-  console.log(connectionRef.current.userId);
+ // console.log(connectionRef.current.userId);
           
-     setCallAccepted(false);
-        userVideo?.current?.srcObject.getTracks().forEach(track => track.stop());
-     userVideo.current.srcObject=null
-     
-         socket.emit("endcall", {
-               user:  calledUser,
-                  socketData:"sd",
-                  from: profile.user.id,
-                  name: profile.user.username
-  
-              })
-       
-              setCalledUser(null);
-              setCaller(null);
-              setIsCalling(false);
-              setRecievingCall(false);
-  
+     disconectCall();
               
               
                
@@ -285,11 +326,13 @@ const toCall=useState(null);
             userslist,
             isCalling,
             audioMuted,
+            socket,
         callUser,
         leaveCall,
         answerCall, 
         shareScreen,
-        toggleMuteAudio
+        toggleMuteAudio,
+        declineCall,
 
       }}
       >
