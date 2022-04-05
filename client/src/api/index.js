@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const base_url='http://localhost:5000/'
-const produc_server_url='https://moviewatchlistapi.herokuapp.com/'
-const API = axios.create({ baseURL:'http://localhost:5000/' });
+const produc_server_url='https://video-hangouts.herokuapp.com/'
+const API = axios.create({ baseURL:produc_server_url });
 
 API.interceptors.request.use((req) => {
   if (JSON.parse(localStorage.getItem('profile'))?.token) {

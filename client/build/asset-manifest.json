@@ -1,0 +1,14 @@
+{
+  "files": {
+    "main.css": "/static/css/main.b97b82ec.css",
+    "main.js": "/static/js/main.8952bee4.js",
+    "static/media/discord_ringtone.mp3": "/static/media/discord_ringtone.eaea3d6709571b6acd44.mp3",
+    "index.html": "/index.html",
+    "main.b97b82ec.css.map": "/static/css/main.b97b82ec.css.map",
+    "main.8952bee4.js.map": "/static/js/main.8952bee4.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.b97b82ec.css",
+    "static/js/main.8952bee4.js"
+  ]
+}

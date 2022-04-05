@@ -43,7 +43,7 @@ const toCall=useState(null);
            
         setProfile(JSON.parse(localStorage.getItem('profile')));
         
-        const newSocket = io.connect('http://localhost:5000',{
+        const newSocket = io.connect('https://video-hangouts.herokuapp.com',{
             query:{
                token:JSON.parse(localStorage.getItem('profile')).token,
                username:JSON.parse(localStorage.getItem('profile')).user.username
