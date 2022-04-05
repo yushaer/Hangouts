@@ -82,6 +82,11 @@ socket.on('join', (data, replyFn) => {
   
         io.to(data.user).emit('callUser',{signal:data.signalData,from:data.from,name:data.name});
     });
+    socket.on('sendMessage',(data)=>{  
+        
+  
+        io.to(data.user).emit('recieveMessage',{message:data.message,userId:data.userId,name:data.name});
+    });
     socket.on('endcall',(data)=>{
        
         console.log('endcall');

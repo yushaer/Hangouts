@@ -1,8 +1,8 @@
 import react from 'react';
 import ScreenShareIcon from '@mui/icons-material/ScreenShare';
 import { Container,Paper,Typography,Grid,Box,IconButton,Stack} from '@mui/material';
-import NavBar from './NavBar';
-import { SocketContext } from '../Context';
+import NavBar from '../NavBar';
+import { SocketContext } from '../../Context';
 import VolumeMuteIcon from '@mui/icons-material/VolumeMute';
 import VolumeOffIcon from '@mui/icons-material/VolumeOff';
 import { useState, useEffect ,useRef,useContext} from 'react';
