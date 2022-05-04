@@ -23,7 +23,7 @@ const { audioMuted,shareScreen,toggleMuteAudio,leaveCall} = useContext(SocketCon
         <Typography variant="h5" >
             {props.name}
         </Typography>
-            <video  className="video" playsInline muted={props.ismuted} ref={props.video} autoPlay  />
+            <video  className="video" playsInline muted={props.ismuted} ref={props.video} autoPlay  controls />
             {props.children}
             <div className="video-controls">
             {props.ismuted?(

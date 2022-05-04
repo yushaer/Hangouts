@@ -7,15 +7,22 @@ import {createServer} from 'http';
 import {Server} from 'socket.io'
 import rootRouter from './routes/index.js';
 import jwt from "jsonwebtoken";
+import { ExpressPeerServer } from 'peer';
 import { connected } from "process";
 
 if(!process.env.PRODUCTION){
    
     dotenv.config()
 }
-
+const CONNECTION_URL = process.env.DB;
+const port = process.env.PORT||5000;
 const app = express();
 const server=createServer(app);
+const peerServer = ExpressPeerServer(server, {
+    debug: true,
+    path: '/'
+  });
+  app.use('/peerjs', peerServer);
 const io = new Server(server,{  
     cors: {
         origin: '*',
@@ -29,8 +36,7 @@ app.use(bodyParser.urlencoded({limit:"30mb",extended:true}));
 app.use(cors());
 
 app.use('/',rootRouter);
-const CONNECTION_URL = process.env.DB;
-const port = process.env.PORT||5000;
+
 io.use(async (socket, next) => {
     try {
       const token = socket.handshake.query.token;
@@ -111,8 +117,8 @@ socket.on('join', (data, replyFn) => {
         replyFn(rooms)
     })
 });
-server.listen(port,()=>console.log(`Server running on port: ${port}`));
+;
  
  mongoose.connect(CONNECTION_URL,{useNewUrlParser:true,useUnifiedTopology:true})
-// .then(()=>app.listen(port,()=>console.log(`Server running on port: ${port}`)))
-// .catch((error)=>console.log(error.message));
+.then(()=>server.listen(port,()=>console.log(`Server running on port: ${port}`)))
+.catch((error)=>console.log(error.message));

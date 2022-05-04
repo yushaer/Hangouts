@@ -8,7 +8,7 @@ const Message=(props)=>{
             <Stack direction="row"  className="message-container" justifyContent="start">
              <div>
              <Avatar alt={props.name}>{props.name[0]}</Avatar>
-             <Typography variant="label" align="center">{props.name}</Typography>
+        
                </div> 
            
             <div className="message message-left">
@@ -22,9 +22,9 @@ const Message=(props)=>{
 
         <div className="message message-right">
           <Typography variant="p">{props.message}</Typography>
-          </div>  <div style={{marginRight:"1rem"}}>
+          </div>  <div >
              <Avatar alt={props.name}>{props.name[0]}</Avatar>
-             <Typography variant="label">{props.name}</Typography>
+         
                </div> 
         </Stack>
     )

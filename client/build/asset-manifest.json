@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/static/css/main.d21b8ede.css",
-    "main.js": "/static/js/main.8952bee4.js",
+    "main.js": "/static/js/main.03557282.js",
     "static/media/discord_ringtone.mp3": "/static/media/discord_ringtone.eaea3d6709571b6acd44.mp3",
     "index.html": "/index.html",
     "main.d21b8ede.css.map": "/static/css/main.d21b8ede.css.map",
-    "main.8952bee4.js.map": "/static/js/main.8952bee4.js.map"
+    "main.03557282.js.map": "/static/js/main.03557282.js.map"
   },
   "entrypoints": [
     "static/css/main.d21b8ede.css",
-    "static/js/main.8952bee4.js"
+    "static/js/main.03557282.js"
   ]
 }
